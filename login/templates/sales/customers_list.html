@@ -1,0 +1,168 @@
+{% extends 'starter.html' %}
+{% load mytags %}
+
+{% block title %}
+{{ tags|page_title }}
+
+{% endblock %}
+
+{% block Seacher %}
+    <form class="form-inline ml-3" method="get">
+      <div class="input-group input-group-sm">
+          <select name="select" id="" class="form-control">
+              <option value="">请选择输入方式</option>
+              <option value="qq__contains">QQ</option>
+              <option value="phone__contains">电话</option>
+              <option value="name__contains">姓名</option>
+          </select>
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" name="select_content">
+        <div class="input-group-append">
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+{% endblock %}
+
+
+{% block content %}
+    {% csrf_token %}
+        {% if tags == 1 %}
+        <a href="{% url 'customer_add' %}" class="btn btn-primary">添加学生</a>
+        {% endif %}
+
+    <button class="btn btn-success btn-sm" id="check-all" type="button">全选</button> <button class="btn btn-success btn-sm" id="invert-selection" type="button">反选</button> <button class="btn btn-success btn-sm" id="cancel" type="button">取消</button>
+    <div class="input-group input-group-sm form-inline col-md-4 pull-right">
+        <select name="" id="" class="form-control">
+            {% if tags == 1 %}
+            <option value="reverse_gs">新生转入学学生</option>
+                {% else %}
+                <option value="reverse_sg">学生转毕业生</option>
+            {% endif %}
+        </select>
+    <button class="btn btn-primary btn-sm" id="customer-swith">确定</button>
+    </div>
+        <table style="margin-top: 10px;" class="table table-bordered table-hover table-striped">
+        <thead>
+
+        <tr>
+            <th>
+              选择
+            </th>
+            <th>序号</th>
+            <th>QQ</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>客户来源</th>
+            <th>咨询课程</th>
+            {% if tags == 2 %}
+            <th>跟进记录</th>
+            {% endif %}
+            <th>状态</th>
+            <th>销售</th>
+            <th>操作</th>
+
+        </tr>
+        </thead>
+        <tbody>
+            {% for customer in all_customers %}
+                <tr>
+{#                    <td>{{ forloop.counter }}</td>#}
+                    <td>
+                        <input type="checkbox" name="customers_id" value="{{ customer.id }}">
+                    </td>
+                    <td>{{ request|customers_number:forloop.counter }}</td>
+                    <td>{{ customer.qq }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.get_sex_display }}</td>
+                    <td>{{ customer.get_source_display }}</td>
+                    <td>{{ customer.get_course_display }}</td>
+                    {% if tags == 2 %}
+                    <td><a href="{% url 'follow_up_records' %}?cid={{ customer.id }}">详细记录</a></td>
+                    {% endif %}
+                    <td>{{ customer.get_status_display }}</td>
+                    <td>{{ customer.consultant.username|default:'暂无' }}</td>
+                    <td>
+                        <a href="{% resolve_url request 'customer_edit' customer.id %}" title="编辑"><i class="fa fa-pencil"></i>&nbsp;</a>|
+                        <a href="{% url 'customer_del' customer.id %}" title="删除">&nbsp;<i class="fa fa-remove"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                 <tr>
+                <td colspan="9" style="text-align: center;font-size: 20px">
+                <h3>sorry,没有查到相关信息</h3>
+                </td>
+                </tr>
+
+
+            {% endfor %}
+
+
+
+
+
+        </tbody>
+
+    </table>
+{{ page_html }}
+
+{% endblock %}
+
+{% block choice %}
+<script>
+    $('#check-all').click(function(){
+        $('[type = checkbox]').prop('checked',true);
+    });
+
+    $('#cancel').click(function(){
+      $('[type = checkbox]').prop('checked',false);
+    });
+
+    $('#invert-selection').click(function(){
+      var all_info = $('[type=checkbox]');
+      for(var i=0;i<all_info.length;i++){
+        var statu = all_info.eq(i).prop('checked');
+        if (statu){
+          all_info.eq(i).prop('checked',false);
+        }else{
+          all_info.eq(i).prop('checked',true);
+        }}
+    });
+
+    $('#customer-swith').click(function(){
+      var csrf = $('[name = "csrfmiddlewaretoken"]').val();
+      var name = $('option:checked').eq(1).val();
+      var customers = [];
+      var txt = $('input:checked');
+      for(var i=0;i<txt.length;i++){
+        customers.push(txt.eq(i).val())
+      }
+      $.ajax({
+        url:'/customers/',
+        type:'post',
+        data:{'customers':JSON.stringify(customers),'csrfmiddlewaretoken':csrf,'bulk_action':name},
+        success:function (reserver) {
+          console.log(reserver);
+          if(reserver === '手速慢了'){
+            swal("手速慢了!", "请刷新后重新选择", "error");
+          }else if (reserver === '公转私'){
+            swal("客户转换成功", "请开始你的表演", "success");
+            window.location.reload()
+          }else if (reserver === '私转公'){
+            swal("客户转换成功", "以后请继续加油", "success");
+            window.location.reload()
+          }else{
+            swal("操作有误", "请刷新后重新操作！", "error");
+          }
+
+        }
+      })
+    })
+
+</script>
+{% endblock %}
+
+
+
+

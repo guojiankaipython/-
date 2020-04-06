@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+
+<div class="item">
+{% for menu_key,menu_value in menu_order_dict.items %}
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon fas {{ menu_value.icon }}"></i>
+              <p>
+                {{ menu_value.title }}
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+
+            <ul class="nav nav-treeview">
+                {% for child in menu_value.children %}
+              <li class="nav-item">
+                <a href="{{ child.url }}" class="nav-link {{ child.class }}">
+                  <i class="far {{ child.icon }} nav-icon"></i>
+                  <p>{{ child.title }}</p>
+                </a>
+              </li>
+                    {% endfor %}
+            </ul>
+          </li>
+{% endfor %}
+</div>
+
+
+
+{#    <div class="title">{{ menu_value.title }}</div>#}
+{#    <div class="body {{ menu_value.class }}">#}
+{#        {% for child in menu_value.children %}#}
+{#        <a href="" class="{{ child.class }}">#}
+{#    <span class="icon-wrap">#}
+{#        <i class="fa {{ child.icon }} "></i>#}
+{#    </span>#}
+{#     {{ child.title }}#}
+{#</a>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{##}
+{#</div>#}
+
+
+</body>
+</html>

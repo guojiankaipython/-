@@ -1,0 +1,119 @@
+{% extends 'starter.html' %}
+
+
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+
+        <div class="panel panel-primary">
+
+              <div class="panel-heading"><i class="fa fa-book"></i>菜单管理<a style="padding: 2px 2px" href="{% url 'rbac:menu_add' %}" class="btn btn-success btn-sm pull-right"><i class="fa fa-plus"></i> 新建</a></div>
+            <div class="panel-body">
+                <table class="table table-bordered table-hover table-striped menu-body">
+                   <thead>
+                   <tr>
+                       <th>名称</th>
+                       <th>图标</th>
+                       <th>操作</th>
+                   </tr>
+                   </thead>
+                    <tbody>
+                    {% for menu in menu_lists %}
+                        <tr class="{% if menu.id|safe == mid %}active{% endif %}">
+                        <td><a href="?mid={{ menu.id }}">{{ menu.title }}</a></td>
+                        <td><i class="fa {{ menu.icon }}"></i></td>
+                        <td>
+                            <a href="{% url 'rbac:menu_edit' menu.id %}"><i class="fa fa-edit"></i></a>
+                            <a href="{% url 'rbac:menu_del' menu.id %}"><i class="fa fa-remove"></i></a>
+                        </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+
+        <div class="panel panel-primary">
+
+              <div class="panel-heading"><i class="fa fa-book"></i>权限管理
+                  <a style="padding: 2px 2px" href="{% url 'rbac:multi_permissions' %}" class="btn btn-success btn-sm pull-right"><i class="fa fa-scissors"></i> 批量操作</a>
+                  <a style="padding: 2px 2px" href="{% url 'rbac:permissions_add' %}" class="btn btn-success btn-sm pull-right"><i class="fa fa-plus"></i> 新建</a>
+              </div>
+            <div class="panel-body">
+                <table class="table table-bordered table-hover permission-area">
+                   <thead>
+                   <tr>
+                       <th>名称</th>
+                       <th>URL</th>
+                       <th>URL别名</th>
+                       <th>菜单</th>
+                       <th>所属菜单</th>
+                       <th>操作</th>
+                   </tr>
+                   </thead>
+                    <tbody>
+                    {% for permissions in permissions_dict.values %}
+                        <tr class="parent">
+                        <td>
+                                {% if permissions.menu_id %}
+                                <i class="fa fa-caret-down drop-down"></i>
+                        {% endif %}
+                        {{ permissions.title }}
+                        </td>
+                        <td>{{ permissions.url }}</td>
+                        <td>{{ permissions.url_name }}</td>
+                        <td>
+                                是
+                        </td>
+                        <td>{{ permissions.menu.title }}</td>
+                        <td>
+                            <a href="{% url 'rbac:permissions_edit' permissions.id %}"><i class="fa fa-edit"></i></a>
+                            <a href="#"><i class="fa fa-remove"></i></a>
+                        </td>
+                        </tr>
+                        {% for node in permissions.children %}
+                            <tr>
+                            <td>
+                                {% if node.menu_id %}
+                                    <i class="fa fa-caret-down drop-down"></i>
+                                {% endif %}
+                            {{ node.title }}
+                            </td>
+                            <td>{{ node.url }}</td>
+                            <td>{{ node.url_name }}</td>
+                            <td></td>
+                            <td>{{ node.menu.title }}</td>
+                            <td>
+                            <a href="{% url 'rbac:permissions_edit' node.id %}"><i class="fa fa-edit"></i></a>
+                            <a href="{% url 'rbac:permissions_del' node.id %}"><i class="fa fa-remove"></i></a>
+                            </td>
+                            </tr>
+                            {% endfor %}
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{#<script>#}
+{#    $('.permission-area .parent').click(function(){#}
+{##}
+{#  $(this).find('.drop-down').toggleClass('fa-caret-right');#}
+{#  $(this).nextUntil('.parent').toggleClass('hidden');#}
+{#});#}
+{#</script>#}
+
+
+
+
+
+

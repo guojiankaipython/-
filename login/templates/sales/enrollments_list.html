@@ -1,0 +1,131 @@
+{% extends 'starter.html' %}
+{% load mytags %}
+
+{% block title %}
+报名信息展示
+
+{% endblock %}
+
+{% block Seacher %}
+    <form class="form-inline ml-3" method="get">
+      <div class="input-group input-group-sm">
+          <select name="select" id="" class="form-control">
+              <option value="">请选择输入方式</option>
+              <option value="qq__contains">QQ</option>
+              <option value="phone__contains">电话</option>
+              <option value="name__contains">姓名</option>
+          </select>
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" name="select_content">
+        <div class="input-group-append">
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+{% endblock %}
+
+
+{% block content %}
+    {% csrf_token %}
+        {% if tags == 1 %}
+        <a href="{% url 'customer_add' %}" class="btn btn-primary">添加客户</a>
+        {% endif %}
+
+    <button class="btn btn-success btn-sm" id="check-all" type="button">全选</button> <button class="btn btn-success btn-sm" id="invert-selection" type="button">反选</button> <button class="btn btn-success btn-sm" id="cancel" type="button">取消</button>
+    <div class="input-group input-group-sm form-inline col-md-4 pull-right">
+        <select name="" id="" class="form-control">
+            {% if tags == 1 %}
+            <option value="reverse_gs">公户转私户</option>
+                {% else %}
+                <option value="reverse_sg">私户转公户</option>
+            {% endif %}
+        </select>
+    <button class="btn btn-primary btn-sm" id="customer-swith">确定</button>
+    </div>
+        <table style="margin-top: 10px;" class="table table-bordered table-hover table-striped">
+        <thead>
+
+        <tr>
+            <th>
+              选择
+            </th>
+            <th>序号</th>
+            <th>客户名称</th>
+            <th>为什么报名</th>
+            <th>审核状态</th>
+            <th>报名日期</th>
+            <th>备注</th>
+            <th>学校</th>
+            <th>所报班级</th>
+            <th>操作</th>
+
+        </tr>
+        </thead>
+        <tbody>
+            {% for enrollments in enrollments_list %}
+                <tr>
+{#                    <td>{{ forloop.counter }}</td>#}
+                    <td>
+                        <input type="checkbox" name="customers_id" value="{{ enrollments.id }}">
+                    </td>
+                    <td>{{ request|customers_number:forloop.counter }}</td>
+                    <td>{{ enrollments.customer }}</td>
+                    <td>{{ enrollments.why_us }}</td>
+                    <td>{{ enrollments.contract_approved|contract_approved }}</td>
+                    <td>{{ enrollments.enrolled_date|date:'Y-m-d' }}</td>
+                    <td>{{ enrollments.memo }}</td>
+                    <td>{{ enrollments.school }}</td>
+                    <td>{{ enrollments.enrolment_class }}</td>
+                    <td>
+                        <a href="#" title="编辑"><i class="fa fa-pencil"></i>&nbsp;</a>|
+                        <a href="#" title="删除">&nbsp;<i class="fa fa-remove"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                 <tr>
+                <td colspan="9" style="text-align: center;font-size: 20px">
+                <h3>sorry,没有查到相关信息</h3>
+                </td>
+                </tr>
+
+
+            {% endfor %}
+
+
+
+
+
+        </tbody>
+
+    </table>
+
+
+{% endblock %}
+{% block choice %}
+
+
+<script>
+    $('#check-all').click(function(){
+        $('[type = checkbox]').prop('checked',true);
+    });
+
+    $('#cancel').click(function(){
+      $('[type = checkbox]').prop('checked',false);
+    });
+
+    $('#invert-selection').click(function(){
+      var all_info = $('[type=checkbox]');
+      for(var i=0;i<all_info.length;i++){
+        var statu = all_info.eq(i).prop('checked');
+        if (statu){
+          all_info.eq(i).prop('checked',false);
+        }else{
+          all_info.eq(i).prop('checked',true);
+        }}
+    });
+</script>
+{% endblock %}
+
+
+

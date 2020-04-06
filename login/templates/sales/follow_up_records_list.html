@@ -1,0 +1,76 @@
+{% extends 'starter.html' %}
+
+{% load mytags %}
+
+
+{% block Seacher %}
+    <form class="form-inline ml-3" method="get">
+      <div class="input-group input-group-sm">
+          <select name="select" id="" class="form-control">
+              <option value="">请选择输入方式</option>
+{#              <option value="customer__name__contains">跟进客户</option>#}
+              <option value="status__contains">跟进状态</option>
+          </select>
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" name="select_content">
+        <div class="input-group-append">
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+{% endblock %}
+
+{% block contact %}
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{% url 'consultant_records_add' %}" class="nav-link">添加跟进记录</a>
+      </li>
+{% endblock %}
+
+{% block title %}
+跟进记录展示
+{% endblock %}
+
+
+{% block content %}
+
+<table style="margin-top: 10px;" class="table table-bordered table-hover table-striped">
+<thead>
+<tr>
+    <th>序号</th>
+    <th>所咨询的客户</th>
+    <th>跟进内容</th>
+    <th>跟进状态</th>
+    <th>跟进人</th>
+    <th>跟进日期</th>
+    <th>操作</th>
+</tr>
+</thead>
+<tbody>
+{% for consult_record in consult_record_list %}
+
+    <tr>
+        <td>{{ request|customers_number:forloop.counter }}</td>
+        <td>{{ consult_record.customer.name }}</td>
+        <td>{{ consult_record.note }}</td>
+        <td>{{ consult_record.get_status_display }}</td>
+        <td>{{ consult_record.consultant.username }}</td>
+        <td>{{ consult_record.date|date:'Y-m-d' }}</td>
+        <td>
+           <a href="{% resolve_url request 'follow_up_records_edit' consult_record.id %}" title="编辑"><i class="fa fa-pencil"></i>&nbsp;</a>|
+           <a href="{% url 'follow_up_records_del' consult_record.id %}" title="删除">&nbsp;<i class="fa fa-remove"></i></a>
+        </td>
+    </tr>
+
+
+{% endfor %}
+</tbody>
+
+</table>
+{{ page_html }}
+
+
+
+
+
+{% endblock %}

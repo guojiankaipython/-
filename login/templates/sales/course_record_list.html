@@ -1,0 +1,152 @@
+{% extends 'starter.html' %}
+{% load mytags %}
+
+{% block title %}
+课程记录
+{% endblock %}
+
+{% block Seacher %}
+    <form class="form-inline ml-3" method="get">
+      <div class="input-group input-group-sm">
+          <select name="select" id="" class="form-control">
+              <option value="">请选择输入方式</option>
+              <option value="qq__contains">QQ</option>
+              <option value="phone__contains">电话</option>
+              <option value="name__contains">姓名</option>
+          </select>
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" name="select_content">
+        <div class="input-group-append">
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+{% endblock %}
+
+
+{% block content %}
+    {% csrf_token %}
+        <a href="{% url 'customer_add' %}" class="btn btn-primary">添加客户</a>
+
+    <button class="btn btn-success btn-sm" id="check-all" type="button">全选</button> <button class="btn btn-success btn-sm" id="invert-selection" type="button">反选</button> <button class="btn btn-success btn-sm" id="cancel" type="button">取消</button>
+    <div class="input-group input-group-sm form-inline col-md-4 pull-right">
+        <select name="bulk_action" id="bulk_action" class="form-control">
+            <option value="bulk_create_sr">批量生成学习记录</option>
+        </select>
+    <button class="btn btn-primary btn-sm" id="go" type="button">确定</button>
+    </div>
+        <table style="margin-top: 10px;" class="table table-bordered table-hover table-striped">
+        <thead>
+
+        <tr>
+            <th>
+              选择
+            </th>
+            <th>序号</th>
+            <th>节次</th>
+            <th>上课日期</th>
+            <th>本节课程标题</th>
+            <th>本节课程内容</th>
+            <th>班级</th>
+            <th>讲师</th>
+            <th>学习记录</th>
+            <th>操作</th>
+
+        </tr>
+        </thead>
+        <tbody>
+            {% for course_record in course_record_list %}
+                <tr>
+{#                    <td>{{ forloop.counter }}</td>#}
+                    <td>
+                        <input type="checkbox" name="customers_id" value="{{ course_record.id }}">
+                    </td>
+                    <td>{{ request|customers_number:forloop.counter }}</td>
+                <td>{{ course_record.day_num }}</td>
+                <td>{{ course_record.date|date:'Y-m-d' }}</td>
+                <td>{{ course_record.course_title }}</td>
+                <td>{{ course_record.course_memo }}</td>
+                <td>{{ course_record.re_class.course }}</td>
+                <td>{{ course_record.teacher.username }}</td>
+                <td>
+                    <a href="{% url 'study_record' course_record.id %}">查看学习记录</a>
+                </td>
+                    <td>
+                        <a href="#" title="编辑"><i class="fa fa-pencil"></i>&nbsp;</a>|
+                        <a href="#" title="删除">&nbsp;<i class="fa fa-remove"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                 <tr>
+                <td colspan="9" style="text-align: center;font-size: 20px">
+                <h3>sorry,没有查到相关信息</h3>
+                </td>
+                </tr>
+
+
+            {% endfor %}
+
+
+
+
+
+        </tbody>
+
+    </table>
+
+
+{% endblock %}
+{% block choice %}
+
+
+<script>
+    $('#check-all').click(function(){
+        $('[type = checkbox]').prop('checked',true);
+    });
+
+    $('#cancel').click(function(){
+      $('[type = checkbox]').prop('checked',false);
+    });
+
+    $('#invert-selection').click(function(){
+      var all_info = $('[type=checkbox]');
+      for(var i=0;i<all_info.length;i++){
+        var statu = all_info.eq(i).prop('checked');
+        if (statu){
+          all_info.eq(i).prop('checked',false);
+        }else{
+          all_info.eq(i).prop('checked',true);
+        }}
+    });
+    
+    $('#go').click(function(){
+      var csrf = $('[name = "csrfmiddlewaretoken"]').val();
+      var name = $('option:checked').eq(1).val();
+      var course_record = [];
+      var txt = $('input:checked');
+      for(var i=0;i<txt.length;i++){
+        course_record.push(txt.eq(i).val())
+      }
+      $.ajax({
+        url:'',
+        type:'post',
+        data:{'course_record':JSON.stringify(course_record),'csrfmiddlewaretoken':csrf,'bulk_action':name},
+        success:function (reserver) {
+          console.log(reserver);
+          if (reserver === '成功'){
+            swal("成功!", "批量添加", "success");
+          }else if (reserver === '失败'){
+            swal("失败!", "请重新操作", "error");
+          }else{
+            swal("失败!", "请重新操作", "error");
+          }
+
+        }
+      })
+    })
+</script>
+{% endblock %}
+
+
+
